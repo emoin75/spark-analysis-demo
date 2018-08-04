@@ -1,6 +1,6 @@
 # spark-analysis-demo
 
-Build project ``mvn clean install```
+Build project ``mvn clean install``
 
 ```helllo```
 
