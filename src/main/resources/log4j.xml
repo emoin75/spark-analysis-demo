@@ -9,7 +9,7 @@
 	</appender>
 
 	<appender name="rollingFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="${customer.log.home}/logs/customer-data-analysis.log" />
+		<param name="file" value="/Users/saroj/Workspace/projects/logs/customer-data-analysis.log" />
 		<param name="datePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSSZ} [%t] %-5p %c{1} - %m%n" />
