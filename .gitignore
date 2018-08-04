@@ -1,0 +1,41 @@
+/target/
+
+#compiled class file
+*.class
+**/*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*log.gz
+
+
+### STS ###
+.classpath
+.project
+bin/
+.settings/
+target/
+docker/**/*.jar
+.DS_Store
+/.idea/
+${sys:chassis.logs.location}/
+.idea/compiler.xml
+.idea/copyright/
+.idea/encodings.xml
+.idea/libraries/Maven__aopalliance_aopalliance_1_0.xml
+.idea/libraries/Maven__ch_qos_logback_logback_classic_1_1_11.xml
+.idea/libraries/Maven__ch_qos_logback_logback_core_1_1_11.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+/customer-products-api.iml
+/migration-utility.iml
+
