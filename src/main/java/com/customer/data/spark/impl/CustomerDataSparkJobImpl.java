@@ -51,10 +51,13 @@ public class CustomerDataSparkJobImpl implements Serializable {
 	private SourceRowToCustomerDataFunction sourceRowToCustomerDataFunction;
 
 	@Value("${sample.property.name}")
-	String samplePropertyName;
+	private String samplePropertyName;
 
 	@Value("${cust.data.file.path}")
-	String customerDataFilePath;
+	private String customerDataFilePath;
+	
+	@Value("${cust.usage.file.name}")
+	private String usageOutputFileName;
 
 	@Inject
 	public CustomerDataSparkJobImpl(@Value("${app.name}") String appName, SparkHelper sparkHelper) {
@@ -83,44 +86,60 @@ public class CustomerDataSparkJobImpl implements Serializable {
 
 	private void processData(SparkSession sparkSession) {
 		logger.info("Execution started.....");
+		// Create spark dataframe reader
 		DataFrameReader sparkDataDrameReader = sparkSession.read().format(FILE_TYPE_CSV).option(HEADER, true)
 				.option(DELIMITER, ",");
 
+		// Get CustomerData java RDD
 		JavaRDD<Row> cleanedCustomerRDD = getCustomerDataRDD(sparkDataDrameReader);
 
+		//TODO - remove this print line
 		logger.info("Count of cleanedCustomerRDD: " + cleanedCustomerRDD.count());
-
 
 		JavaRDD<CustomerData> customerDataRDD = cleanedCustomerRDD.map(sourceRowToCustomerDataFunction);
 
-		JavaPairRDD<String, Integer> usageByPhoneNum = customerDataRDD
-				.mapToPair(t -> new Tuple2<String, Integer>(t.getPhoneNumber(), Integer.parseInt(t.getUsageInSessionMB())));
+		JavaPairRDD<String, Integer> usageByPhoneNum = customerDataRDD.mapToPair(
+				t -> new Tuple2<String, Integer>(t.getPhoneNumber(), Integer.parseInt(t.getUsageInSessionMB())));
 
 		JavaPairRDD<String, Integer> usageAccumulated = usageByPhoneNum.reduceByKey((a, b) -> a + b);
-		
-		usageAccumulated.foreach(t-> logger.info("Phone number: "+t._1+", Total usage: "+t._2));
-		
-		usageAccumulated.coalesce(1).saveAsTextFile("usageStats");
-		
+
+		//TODO - remove this print line
+		usageAccumulated.foreach(t -> logger.info("Phone number: " + t._1 + ", Total usage: " + t._2));
+		logger.info("Output file location: "+usageOutputFileName);
+		usageAccumulated.coalesce(1).saveAsTextFile(usageOutputFileName);
 		logger.info("Execution ended!!!!!");
 	}
 
 	private JavaRDD<Row> getCustomerDataRDD(DataFrameReader sparkDataDrameReader) {
-		Dataset<Row> customerDataSetRaw = sparkDataDrameReader.load(customerDataFilePath);
+		return sparkDataDrameReader.load(customerDataFilePath)
+				.select("col0", "col1", "col2", "col3", "col4", "col5", "col6", "col7", "col8", "col9", "col10",
+						"col11", "col12", "col13", "col14", "col15", "col16", "col17", "col18", "col19", "col20",
+						"col21", "col22", "col23", "col24", "col25", "col26", "col27")
+				.toJavaRDD().map(customerDataCleansingFunction);
 
-		logger.info("Count of customerDataSetRaw: " + customerDataSetRaw.count());
-
-		Dataset<Row> customerDataSetSelected = customerDataSetRaw.select("col0", "col1", "col2", "col3", "col4", "col5",
-				"col6", "col7", "col8", "col9", "col10", "col11", "col12", "col13", "col14", "col15", "col16", "col17",
-				"col18", "col19", "col20", "col21", "col22", "col23", "col24", "col25", "col26", "col27");
-
-		logger.info("Count of customerDataSetSelected: " + customerDataSetSelected.count());
-
-		JavaRDD<Row> customerJavaRDD = customerDataSetSelected.toJavaRDD();
-
-		JavaRDD<Row> cleanedCustomerRDD = customerJavaRDD.map(customerDataCleansingFunction);
-
-		return cleanedCustomerRDD;
+		/**
+		 * The above step can be done in below step by step way for better understanding
+		 */
+		/*
+		 * Dataset<Row> customerDataSetRaw =
+		 * sparkDataDrameReader.load(customerDataFilePath);
+		 * 
+		 * 
+		 * Dataset<Row> customerDataSetSelected = customerDataSetRaw.select("col0",
+		 * "col1", "col2", "col3", "col4", "col5", "col6", "col7", "col8", "col9",
+		 * "col10", "col11", "col12", "col13", "col14", "col15", "col16", "col17",
+		 * "col18", "col19", "col20", "col21", "col22", "col23", "col24", "col25",
+		 * "col26", "col27");
+		 * 
+		 * 
+		 * JavaRDD<Row> customerJavaRDD = customerDataSetSelected.toJavaRDD();
+		 * 
+		 * JavaRDD<Row> cleanedCustomerRDD =
+		 * customerJavaRDD.map(customerDataCleansingFunction);
+		 * 
+		 * return cleanedCustomerRDD;
+		 * 
+		 */
 	}
 
 	private static List<StructField> getCustomerdataSchema() {
