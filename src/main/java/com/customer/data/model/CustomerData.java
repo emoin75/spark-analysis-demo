@@ -2,6 +2,7 @@ package com.customer.data.model;
 
 import java.io.Serializable;
 
+//This is model for customer data
 public class CustomerData implements Serializable{
 
 	private static final long serialVersionUID = -711435770380326723L;
