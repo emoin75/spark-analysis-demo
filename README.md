@@ -20,3 +20,6 @@ Edit the spark-submit.sh file as per your project location.
 Then either run ./spark-submit.sh or copy it and run in the command-line/terminal
 
 For windows users: You might have to use back slash instead of front slash in scripts.
+
+
+This is my addition - 1, corrected after review.
