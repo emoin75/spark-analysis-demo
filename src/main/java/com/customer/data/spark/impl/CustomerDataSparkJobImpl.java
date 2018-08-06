@@ -98,9 +98,18 @@ public class CustomerDataSparkJobImpl implements Serializable {
 
 		JavaRDD<CustomerData> customerDataRDD = cleanedCustomerRDD.map(sourceRowToCustomerDataFunction);
 
+		
+//		manoj # - 2
+//		manoj # - 4
+//		manoj # - 5
+//		saroj # -  1
+//		saroj # - 2
 		JavaPairRDD<String, Integer> usageByPhoneNum = customerDataRDD.mapToPair(
 				t -> new Tuple2<String, Integer>(t.getPhoneNumber(), Integer.parseInt(t.getUsageInSessionMB())));
 
+		
+//		manoj # - 2+4+5
+//		saroj # -  1+2
 		JavaPairRDD<String, Integer> usageAccumulated = usageByPhoneNum.reduceByKey((a, b) -> a + b);
 
 		//TODO - remove this print line
